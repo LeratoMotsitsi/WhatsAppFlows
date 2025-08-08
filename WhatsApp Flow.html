@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Bot Chat Prototype</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #e5ddd5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .phone-container {
+            width: 375px;
+            height: 667px;
+            background: #000;
+            border-radius: 25px;
+            padding: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .screen {
+            width: 100%;
+            height: 100%;
+            background: #e5ddd5;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .chat-header {
+            background: #02765F;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .chat-info h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .chat-info p {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .chat-area {
+            height: calc(100% - 70px);
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 16px;
+            line-height: 1.4;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .bot-message {
+            background: #02765F;
+            color: white;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .user-message {
+            background: #dcf8c6;
+            color: #000;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .quick-replies {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .quick-reply-btn, .action-btn {
+            background: #03242B;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 20px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            font-weight: 400;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .quick-reply-btn:hover, .action-btn:hover {
+            background: #04364a;
+            transform: translateY(-1px);
+        }
+
+        .payment-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .payment-btn {
+            background: #03242B;
+            color: white;
+            border: none;
+            padding: 10px 12px;
+            border-radius: 15px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .payment-btn:hover {
+            background: #04364a;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .action-btn {
+            flex: 1;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .order-summary {
+            background: rgba(2, 118, 95, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            margin: 10px 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .artboard {
+            display: none;
+        }
+
+        .artboard.active {
+            display: block;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 1000;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .success-emoji {
+            font-size: 24px;
+            margin-right: 8px;
+        }
+
+        .back-btn {
+            background: #02765F;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .number-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #02765F;
+            border-radius: 20px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 16px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .number-input:focus {
+            outline: none;
+            border-color: #04364a;
+        }
+
+        .draw-counter {
+            background: rgba(2, 118, 95, 0.1);
+            padding: 10px;
+            border-radius: 12px;
+            margin: 10px 0;
+            font-size: 14px;
+            text-align: center;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <div class="screen">
+            <!-- Artboard 1: Welcome -->
+            <div class="artboard active" id="welcome">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message bot-message">
+                        Hi SARAH! 👋 Welcome to Perks & Co. What would you like to do today?
+                        <div class="quick-replies">
+                            <button class="quick-reply-btn" onclick="showArtboard('benefits')">🎁 View Benefits</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('wallet')">💰 View Wallet</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('help')">🆘 Help</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard 2: Benefits Menu -->
+            <div class="artboard" id="benefits">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">🎁 View Benefits</div>
+                    <div class="message bot-message">
+                        Pick a benefit to explore:
+                        <div class="quick-replies">
+                            <button class="quick-reply-btn" onclick="showArtboard('flexible-pay')">💸 Flexible Pay (Advances)</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('store-categories')">🛍️ Store (Shop Now)</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('ascend')">📈 Ascend (Credit Builder)</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('savings-club')">🎯 Savings Club (Prize-Linked)</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('careflex')">🏥 CareFlex (Health)</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('fixxr')">🚗 Fixxr (Car Care)</button>
+                            <button class="back-btn" onclick="showArtboard('welcome')">🔙 Back</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard 5: Flexible Pay -->
+            <div class="artboard" id="flexible-pay">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">💸 Flexible Pay (Advances)</div>
+                    <div class="message bot-message">
+                        Flexible Pay lets you access a wage advance before payday.
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('advance-flow')">Start Advance</button>
+                            <button class="action-btn" onclick="showArtboard('flexible-learn')">Learn More</button>
+                        </div>
+                        <button class="back-btn" onclick="showArtboard('benefits')">🔙 Back</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard 6: Flexible Pay Learn More -->
+            <div class="artboard" id="flexible-learn">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">Learn More</div>
+                    <div class="message bot-message">
+                        Flexible Pay gives you access to up to R2,500 of your earned wages before payday. No interest, just a small fee. Perfect for emergencies or unexpected expenses.
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('flexible-pay')">Back</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Advance Flow Start -->
+            <div class="artboard" id="advance-flow">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">Start Advance</div>
+                    <div class="message bot-message">
+                        Flexible Pay – Wage Advance lets you tap into earned wages before payday.
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('advance-limit')">Start Advance</button>
+                        </div>
+                        <button class="back-btn" onclick="showArtboard('flexible-pay')">🔙 Back</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Show Available Limit -->
+            <div class="artboard" id="advance-limit">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">Start Advance</div>
+                    <div class="message bot-message">
+                        You can request up to R2,500 today.<br>
+                        Your wallet balance: R1,750 remaining<br><br>
+                        How much would you like to advance? (Min R100)
+                        <div class="quick-replies">
+                            <button class="quick-reply-btn" onclick="showArtboard('advance-error-min')">R50</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('advance-fee-disclosure')">R100</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('advance-fee-disclosure')">R500</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('advance-fee-disclosure')">R1,000</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('advance-fee-disclosure')">R2,500</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('advance-error-max')">R3,000</button>
+                        </div>
+                        <button class="back-btn" onclick="showArtboard('advance-flow')">🔙 Back</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Validation Error - Minimum -->
+            <div class="artboard" id="advance-error-min">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">R50</div>
+                    <div class="message bot-message">
+                        Minimum is R100. Please enter R100 or more.
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('advance-limit')">Try Again</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Validation Error - Maximum -->
+            <div class="artboard" id="advance-error-max">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">R3,000</div>
+                    <div class="message bot-message">
+                        That's above your available limit. Enter R2,500 or less.
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('advance-limit')">Try Again</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Fee Disclosure -->
+            <div class="artboard" id="advance-fee-disclosure">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">R500</div>
+                    <div class="message bot-message">
+                        <div class="order-summary">
+                            Amount: R500<br>
+                            Fee (3%): R15<br>
+                            Subscription fee: R25<br>
+                            Service fee: R10<br>
+                            Total repay: R550<br>
+                            Repay date: 2024-02-15
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('advance-confirmation')">Confirm</button>
+                            <button class="action-btn" onclick="showArtboard('advance-limit')">Change Amount</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Final Confirmation -->
+            <div class="artboard" id="advance-confirmation">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">Confirm</div>
+                    <div class="message bot-message">
+                        <div class="order-summary">
+                            🏦 Advance: R500<br>
+                            Fee (3%): R15<br>
+                            Subscription fee: R25<br>
+                            Service fee: R10<br>
+                            Total to repay: R550<br>
+                            Due: 2024-02-15<br>
+                            Funds available: Within 1 hour
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('advance-success')">Confirm Advance</button>
+                            <button class="action-btn" onclick="showArtboard('advance-cancel')">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Advance Success -->
+            <div class="artboard" id="advance-success">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">Confirm Advance</div>
+                    <div class="message bot-message">
+                        <span class="success-emoji">🎉</span>Advance #ADV-2024-0115-3421 approved! R500 will be in your account within 1 hour. We'll email you the details.
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('welcome')">Back to Main Menu</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Advance Cancel -->
+            <div class="artboard" id="advance-cancel">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">Cancel</div>
+                    <div class="message bot-message">
+                        No problem! Your advance request has been cancelled.
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('flexible-pay')">Back to Flexible Pay</button>
+                            <button class="action-btn" onclick="showArtboard('welcome')">Main Menu</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard 7: Store Categories -->
+            <div class="artboard" id="store-categories">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">🛍️ Store (Shop Now)</div>
+                    <div class="message bot-message">
+                        Browse our Store categories:
+                        <div class="quick-replies">
+                            <button class="quick-reply-btn" onclick="showArtboard('store-items')">📱 Electronics</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('store-items')">🪑 Furniture</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('store-items')">🛒 Groceries</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('store-items')">🎫 Vouchers</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('store-items')">🎮 Gaming</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('store-items')">👕 Fashion</button>
+                        </div>
+                        <button class="back-btn" onclick="showArtboard('benefits')">🔙 Back</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard 8: Store Items -->
+            <div class="artboard" id="store-items">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">📱 Electronics</div>
+                    <div class="message bot-message">
+                        Items in Electronics:
+                        <div class="quick-replies">
+                            <button class="quick-reply-btn" onclick="showArtboard('store-item-detail')">📱 iPhone 15 Pro - R18,999</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('store-item-detail')">💻 MacBook Air M2 - R24,799</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('store-item-detail')">🎧 AirPods Pro 2 - R4,749</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('store-item-detail')">⌚ Apple Watch Series 9 - R7,599</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('store-item-detail')">📺 Samsung 55" QLED TV - R15,199</button>
+                        </div>
+                        <button class="back-btn" onclick="showArtboard('store-categories')">🔙 Back</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard 9: Store Item Detail -->
+            <div class="artboard" id="store-item-detail">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">📱 iPhone 15 Pro - R18,999</div>
+                    <div class="message bot-message">
+                        iPhone 15 Pro 128GB Titanium — R18,999.00. Add to cart?
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('store-payment-options')">Add to Cart</button>
+                            <button class="action-btn" onclick="showArtboard('store-items')">Choose Another</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard 10: Store Payment Options -->
+            <div class="artboard" id="store-payment-options">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">Add to Cart</div>
+                    <div class="message bot-message">
+                        Choose your payment plan for iPhone 15 Pro 128GB Titanium (Total R18,999.00):
+                        <div class="quick-replies">
+                            <button class="quick-reply-btn" onclick="showArtboard('store-plan-summary-30')">30 days (cash)</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('store-plan-summary-60')">Up to 60 days</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('store-plan-summary-90')">Up to 90 days</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('store-plan-summary-180')">Up to 180 days</button>
+                        </div>
+                        <button class="back-btn" onclick="showArtboard('store-item-detail')">🔙 Back</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard 11: Store Plan Summary 30 Days -->
+            <div class="artboard" id="store-plan-summary-30">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">30 days (cash)</div>
+                    <div class="message bot-message">
+                        <div class="order-summary">
+                            Item: R18,999<br>
+                            Processing fee: R50<br>
+                            Total: R19,049<br>
+                            Payment: 1 × R19,049
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('store-order-summary-30')">Confirm</button>
+                            <button class="action-btn" onclick="showArtboard('store-payment-options')">Change Plan</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Store Plan Summary 60 Days -->
+            <div class="artboard" id="store-plan-summary-60">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">Up to 60 days</div>
+                    <div class="message bot-message">
+                        <div class="order-summary">
+                            Item: R18,999<br>
+                            Processing fee: R50<br>
+                            Subscription fee: R25<br>
+                            Service fee: R10<br>
+                            Total: R19,084<br>
+                            Payment: 2 × R9,542
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('store-order-summary-60')">Confirm</button>
+                            <button class="action-btn" onclick="showArtboard('store-payment-options')">Change Plan</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Store Plan Summary 90 Days -->
+            <div class="artboard" id="store-plan-summary-90">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">Up to 90 days</div>
+                    <div class="message bot-message">
+                        <div class="order-summary">
+                            Item: R18,999<br>
+                            Processing fee: R50<br>
+                            Subscription fee: R25<br>
+                            Service fee: R10<br>
+                            Total: R19,084<br>
+                            Payment: 3 × R6,361
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('store-order-summary-90')">Confirm</button>
+                            <button class="action-btn" onclick="showArtboard('store-payment-options')">Change Plan</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Store Plan Summary 180 Days -->
+            <div class="artboard" id="store-plan-summary-180">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">Up to 180 days</div>
+                    <div class="message bot-message">
+                        <div class="order-summary">
+                            Item: R18,999<br>
+                            Processing fee: R50<br>
+                            Subscription fee: R25<br>
+                            Service fee: R10<br>
+                            Total: R19,084<br>
+                            Payment: 6 × R3,181
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('store-order-summary-180')">Confirm</button>
+                            <button class="action-btn" onclick="showArtboard('store-payment-options')">Change Plan</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard 12: Ascend Options -->
+            <div class="artboard" id="ascend">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">📈 Ascend (Credit Builder)</div>
+                    <div class="message bot-message">
+                        Ascend helps you build credit. Choose an option:
+                        <div class="quick-replies">
+                            <button class="quick-reply-btn" onclick="showArtboard('ascend-data')">📶 Data</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('ascend-savings')">💰 Savings</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('ascend-phones')">📱 Phones</button>
+                        </div>
+                        <button class="back-btn" onclick="showArtboard('benefits')">🔙 Back</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard 3: Wallet -->
+            <div class="artboard" id="wallet">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">💰 View Wallet</div>
+                    <div class="message bot-message">
+                        Your Flexible Pay wallet balance is R1,750.00.
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('welcome')">Back to Main Menu</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard 13: Ascend Data -->
+            <div class="artboard" id="ascend-data">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">📶 Data</div>
+                    <div class="message bot-message">
+                        Great! Buy a data bundle and build credit.
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('ascend-data-continue')">Continue</button>
+                            <button class="action-btn" onclick="showArtboard('ascend')">Back</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard 14: Ascend Savings -->
+            <div class="artboard" id="ascend-savings">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">💰 Savings</div>
+                    <div class="message bot-message">
+                        Your wallet balance: R1,750<br><br>
+                        Set up a monthly savings plan (paid from wallet):
+                        <div class="quick-replies">
+                            <button class="quick-reply-btn" onclick="showArtboard('ascend-savings-plan')">R500 per month</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('ascend-savings-plan')">R1,000 per month</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('ascend-savings-error')">R2,000 per month</button>
+                        </div>
+                        <button class="back-btn" onclick="showArtboard('ascend')">🔙 Back</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard 15: Ascend Phones -->
+            <div class="artboard" id="ascend-phones">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">📱 Phones</div>
+                    <div class="message bot-message">
+                        Select a phone:
+                        <div class="quick-replies">
+                            <button class="quick-reply-btn" onclick="showArtboard('ascend-phone-payment')">📱 iPhone 15 - R14,999</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('ascend-phone-payment')">📱 Samsung Galaxy S24 - R12,999</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('ascend-phone-payment')">📱 Google Pixel 8 - R10,999</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('ascend-phone-payment')">📱 iPhone 14 - R11,999</button>
+                        </div>
+                        <button class="back-btn" onclick="showArtboard('ascend')">🔙 Back</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard 16: Ascend Phone Payment -->
+            <div class="artboard" id="ascend-phone-payment">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">📱 iPhone 15 - R14,999</div>
+                    <div class="message bot-message">
+                        Your wallet balance: R1,750<br><br>
+                        Choose your repayment plan (monthly payments from wallet):
+                        <div class="quick-replies">
+                            <button class="quick-reply-btn" onclick="showArtboard('ascend-phone-plan')">12-Month Plan</button>
+                        </div>
+                        <button class="back-btn" onclick="showArtboard('ascend-phones')">🔙 Back</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard 17: Ascend Phone Plan Summary -->
+            <div class="artboard" id="ascend-phone-plan">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">12-Month Plan</div>
+                    <div class="message bot-message">
+                        <div class="order-summary">
+                            Device: iPhone 15 - R14,999<br>
+                            Upfront fee: R1,500<br>
+                            Monthly payment: R1,250 × 12 months<br>
+                            Total: R16,499<br>
+                            Credit building: Included
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('ascend-phone-confirmation')">Confirm</button>
+                            <button class="action-btn" onclick="showArtboard('ascend-phone-payment')">Change Plan</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Ascend Phone Plan 24 Months -->
+            <div class="artboard" id="ascend-phone-plan-24">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">24-Month Plan</div>
+                    <div class="message bot-message">
+                        <div class="order-summary">
+                            Device: iPhone 15 - R14,999<br>
+                            Upfront fee: R999<br>
+                            Monthly payment: R625 × 24 months<br>
+                            Total: R15,999<br>
+                            Credit building: Included
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('ascend-phone-confirmation-24')">Confirm</button>
+                            <button class="action-btn" onclick="showArtboard('ascend-phone-payment')">Change Plan</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Ascend Phone Confirmation 12 Months -->
+            <div class="artboard" id="ascend-phone-confirmation">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">Confirm</div>
+                    <div class="message bot-message">
+                        <div class="order-summary">
+                            📱 Device: iPhone 15<br>
+                            Upfront fee: R1,500 (due today)<br>
+                            Monthly: R1,250 × 12 months<br>
+                            Total cost: R16,499<br>
+                            First payment: 2024-02-15<br>
+                            Delivery: 3-5 business days
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('ascend-phone-order')">Confirm Order</button>
+                            <button class="action-btn" onclick="showArtboard('ascend-phone-plan')">Back</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Ascend Phone Confirmation 24 Months -->
+            <div class="artboard" id="ascend-phone-confirmation-24">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">Confirm</div>
+                    <div class="message bot-message">
+                        <div class="order-summary">
+                            📱 Device: iPhone 15<br>
+                            Upfront fee: R999 (due today)<br>
+                            Monthly: R625 × 24 months<br>
+                            Total cost: R15,999<br>
+                            First payment: 2024-02-15<br>
+                            Delivery: 3-5 business days
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('ascend-phone-order')">Confirm Order</button>
+                            <button class="action-btn" onclick="showArtboard('ascend-phone-plan-24')">Back</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard 18: Other Benefits Stubs -->
+            <div class="artboard" id="savings-club">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">🎯 Savings Club (Prize-Linked)</div>
+                    <div class="message bot-message">
+                        Welcome to the 🏆 Savings Club!<br><br>
+                        • Save money ➜ earn 1 draw for every R100 you deposit.<br>
+                        • Pick 6 lucky numbers (1–49).<br><br>
+                        Ready to play?
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('savings-club-amount')">Start</button>
+                            <button class="action-btn" onclick="showArtboard('benefits')">🔙 Back</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Savings Club Amount Entry -->
+            <div class="artboard" id="savings-club-amount">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">Start</div>
+                    <div class="message bot-message">
+                        How much would you like to save? (Minimum R100)
+                        <div class="quick-replies">
+                            <button class="quick-reply-btn" onclick="showArtboard('savings-club-error-min')">R50</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('savings-club-draws')">R100</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('savings-club-draws')">R250</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('savings-club-draws')">R500</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('savings-club-draws')">R1,000</button>
+                        </div>
+                        <button class="back-btn" onclick="showArtboard('savings-club')">🔙 Back</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Savings Club Error - Minimum -->
+            <div class="artboard" id="savings-club-error-min">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">R50</div>
+                    <div class="message bot-message">
+                        Minimum is R100. Please enter R100 or more.
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('savings-club-amount')">Try Again</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Savings Club Draws Calculation -->
+            <div class="artboard" id="savings-club-draws">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">R500</div>
+                    <div class="message bot-message">
+                        Great! You've earned 5 draw(s) this month.<br><br>
+                        Enter 6 numbers between 1 and 49 (separated by spaces):
+                        <input type="text" class="number-input" id="numbers-input" placeholder="e.g. 5 12 19 23 37 44" maxlength="17">
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="submitNumbers()">Submit Numbers</button>
+                        </div>
+                        <button class="back-btn" onclick="showArtboard('savings-club-amount')">🔙 Back</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Savings Club Numbers Error -->
+            <div class="artboard" id="savings-club-numbers-error">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">5 12 19 23 37 50</div>
+                    <div class="message bot-message">
+                        Please send exactly 6 unique numbers from 1–49.
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('savings-club-draws')">Try Again</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Savings Club Draw 2 -->
+            <div class="artboard" id="savings-club-draw-2">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message" id="user-numbers-1">5 12 19 23 37 44</div>
+                    <div class="message bot-message">
+                        Great! Numbers saved for Draw 1.<br><br>
+                        <div class="draw-counter">Draw 2 of 5</div>
+                        Enter 6 numbers for your next draw:
+                        <input type="text" class="number-input" id="numbers-input-2" placeholder="e.g. 7 14 21 28 35 42" maxlength="17">
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="submitNumbers2()">Submit Numbers</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Savings Club Draw 3 -->
+            <div class="artboard" id="savings-club-draw-3">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message" id="user-numbers-2">7 14 21 28 35 42</div>
+                    <div class="message bot-message">
+                        Excellent! Numbers saved for Draw 2.<br><br>
+                        <div class="draw-counter">Draw 3 of 5</div>
+                        Enter 6 numbers for your next draw:
+                        <input type="text" class="number-input" id="numbers-input-3" placeholder="e.g. 3 9 15 27 33 48" maxlength="17">
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="submitNumbers3()">Submit Numbers</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Savings Club Draw 4 -->
+            <div class="artboard" id="savings-club-draw-4">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message" id="user-numbers-3">3 9 15 27 33 48</div>
+                    <div class="message bot-message">
+                        Perfect! Numbers saved for Draw 3.<br><br>
+                        <div class="draw-counter">Draw 4 of 5</div>
+                        Enter 6 numbers for your next draw:
+                        <input type="text" class="number-input" id="numbers-input-4" placeholder="e.g. 1 8 16 24 32 49" maxlength="17">
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="submitNumbers4()">Submit Numbers</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Savings Club Draw 5 -->
+            <div class="artboard" id="savings-club-draw-5">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message" id="user-numbers-4">1 8 16 24 32 49</div>
+                    <div class="message bot-message">
+                        Awesome! Numbers saved for Draw 4.<br><br>
+                        <div class="draw-counter">Draw 5 of 5 (Final Draw)</div>
+                        Enter 6 numbers for your final draw:
+                        <input type="text" class="number-input" id="numbers-input-5" placeholder="e.g. 6 13 20 29 36 43" maxlength="17">
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="submitNumbers5()">Submit Final Numbers</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Savings Club Confirmation -->
+            <div class="artboard" id="savings-club-confirmation">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message" id="user-numbers-1">5 12 19 23 37 44</div>
+                    <div class="message bot-message">
+                        <span class="success-emoji">🎉</span>Perfect! You've saved R500 and entered your lucky numbers.<br><br>
+                        <div class="order-summary">
+                            Your numbers: <span id="final-numbers-1">5 12 19 23 37 44</span><br>
+                            Amount saved: R500<br>
+                            Draws earned: 5<br>
+                            Next draw: 2024-02-28
+                        </div>
+                        Best of luck! 🎉
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('welcome')">Back to Main Menu</button>
+                            <button class="action-btn" onclick="showArtboard('savings-club-amount')">Save More</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="artboard" id="careflex">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">🏥 CareFlex (Health)</div>
+                    <div class="message bot-message">
+                        Access affordable healthcare services, telemedicine, and prescription discounts.
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('benefits')">🔙 Back</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="artboard" id="fixxr">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">🚗 Fixxr (Car Care)</div>
+                    <div class="message bot-message">
+                        Get discounted car maintenance, repairs, and emergency roadside assistance.
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('benefits')">🔙 Back</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Store Order Summary 30 -->
+            <div class="artboard" id="store-order-summary-30">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">Confirm</div>
+                    <div class="message bot-message">
+                        <div class="order-summary">
+                            🛒 Item: iPhone 15 Pro 128GB Titanium<br>
+                            Total: R19,049<br>
+                            Pay via: 30 days (1 payment)<br>
+                            Payment due: 2024-02-15
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('store-success')">Confirm</button>
+                            <button class="action-btn" onclick="showArtboard('store-cancel')">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Store Order Summary 60 -->
+            <div class="artboard" id="store-order-summary-60">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">Confirm</div>
+                    <div class="message bot-message">
+                        <div class="order-summary">
+                            🛒 Item: iPhone 15 Pro 128GB Titanium<br>
+                            Total: R19,084<br>
+                            Pay via: 60 days (2 payments)<br>
+                            First payment: 2024-02-15
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('store-success')">Confirm</button>
+                            <button class="action-btn" onclick="showArtboard('store-cancel')">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Store Order Summary 90 -->
+            <div class="artboard" id="store-order-summary-90">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">Confirm</div>
+                    <div class="message bot-message">
+                        <div class="order-summary">
+                            🛒 Item: iPhone 15 Pro 128GB Titanium<br>
+                            Total: R19,084<br>
+                            Pay via: 90 days (3 payments)<br>
+                            First payment: 2024-02-15
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('store-success')">Confirm</button>
+                            <button class="action-btn" onclick="showArtboard('store-cancel')">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Store Order Summary 180 -->
+            <div class="artboard" id="store-order-summary-180">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">Confirm</div>
+                    <div class="message bot-message">
+                        <div class="order-summary">
+                            🛒 Item: iPhone 15 Pro 128GB Titanium<br>
+                            Total: R19,084<br>
+                            Pay via: 180 days (6 payments)<br>
+                            First payment: 2024-02-15
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('store-success')">Confirm</button>
+                            <button class="action-btn" onclick="showArtboard('store-cancel')">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Store Success -->
+            <div class="artboard" id="store-success">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">Confirm</div>
+                    <div class="message bot-message">
+                        <span class="success-emoji">🎉</span>Order #ORD-2024-0115-7892 confirmed! We'll email you the details soon.
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('welcome')">Back to Main Menu</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Store Cancel -->
+            <div class="artboard" id="store-cancel">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">Cancel</div>
+                    <div class="message bot-message">
+                        No worries! Browse more or pick another payment option.
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('store-categories')">Browse More</button>
+                            <button class="action-btn" onclick="showArtboard('store-payment-options')">Payment Options</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Ascend Data Continue -->
+            <div class="artboard" id="ascend-data-continue">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">Continue</div>
+                    <div class="message bot-message">
+                        Your wallet balance: R1,750<br><br>
+                        Choose a data bundle (paid from wallet):
+                        <div class="quick-replies">
+                            <button class="quick-reply-btn" onclick="showArtboard('ascend-data-confirm')">📶 1GB - R50</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('ascend-data-confirm')">📶 5GB - R150</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('ascend-data-confirm')">📶 10GB - R250</button>
+                            <button class="quick-reply-btn" onclick="showArtboard('ascend-data-error')">📶 20GB - R2,000</button>
+                        </div>
+                        <button class="back-btn" onclick="showArtboard('ascend-data')">🔙 Back</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Ascend Data Confirm -->
+            <div class="artboard" id="ascend-data-confirm">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">📶 5GB - R150</div>
+                    <div class="message bot-message">
+                        <div class="order-summary">
+                            Data bundle: 5GB<br>
+                            Cost: R150<br>
+                            Processing fee: R10<br>
+                            Total: R160<br>
+                            Paid from wallet: R160<br>
+                            New wallet balance: R1,590
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('ascend-data-success')">Confirm Purchase</button>
+                            <button class="action-btn" onclick="showArtboard('ascend-data-continue')">Back</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Ascend Data Error -->
+            <div class="artboard" id="ascend-data-error">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">📶 20GB - R2,000</div>
+                    <div class="message bot-message">
+                        Insufficient wallet balance. You need R2,010 (including fees) but only have R1,750 available.
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('ascend-data-continue')">Choose Another Bundle</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Ascend Data Success -->
+            <div class="artboard" id="ascend-data-success">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">Confirm Purchase</div>
+                    <div class="message bot-message">
+                        <span class="success-emoji">🎉</span>Data bundle purchased! 5GB added to your account, R160 deducted from wallet, and credit score improved.
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('welcome')">Back to Main Menu</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Ascend Savings Plan -->
+            <div class="artboard" id="ascend-savings-plan">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">R1,000 per month</div>
+                    <div class="message bot-message">
+                        <div class="order-summary">
+                            Monthly savings: R1,000<br>
+                            Processing fee: R25<br>
+                            Total monthly deduction: R1,025<br>
+                            Paid from wallet each month<br>
+                            First payment: 2024-02-15<br>
+                            Credit building: Included
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('ascend-savings-confirm')">Confirm Plan</button>
+                            <button class="action-btn" onclick="showArtboard('ascend-savings')">Back</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Ascend Savings Error -->
+            <div class="artboard" id="ascend-savings-error">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">R2,000 per month</div>
+                    <div class="message bot-message">
+                        Insufficient wallet balance for monthly payments. You need R2,025 monthly (including fees) but only have R1,750 available.
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('ascend-savings')">Choose Lower Amount</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Ascend Savings Confirm -->
+            <div class="artboard" id="ascend-savings-confirm">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">Confirm Plan</div>
+                    <div class="message bot-message">
+                        <span class="success-emoji">🎉</span>Savings plan set up! R1,025 will be deducted from your wallet monthly and your credit score will improve with each payment.
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('welcome')">Back to Main Menu</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Ascend Phone Error -->
+            <div class="artboard" id="ascend-phone-error">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">6-Month Plan</div>
+                    <div class="message bot-message">
+                        Insufficient wallet balance for monthly payments. 6-month plan requires R2,750 monthly but you only have R1,750 available.
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('ascend-phone-payment')">Choose Longer Plan</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Ascend Phone Order -->
+            <div class="artboard" id="ascend-phone-order">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">Confirm Order</div>
+                    <div class="message bot-message">
+                        <span class="success-emoji">🎉</span>Order #ASC-2024-0115-9876 confirmed! iPhone 15 will be delivered within 3-5 business days. Monthly payments will be deducted from your wallet. Your credit building journey starts now!
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('welcome')">Back to Main Menu</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard: Contact Support -->
+            <div class="artboard" id="contact-support">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">Contact Support</div>
+                    <div class="message bot-message">
+                        You can reach our support team:
+                        <div class="order-summary">
+                            📞 Phone: 0800-PERKS-CO<br>
+                            📧 Email: help@perksco.com<br>
+                            💬 Live Chat: Available 24/7<br>
+                            🕒 Hours: Mon-Fri 8AM-6PM
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('help')">Back to Help</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artboard 4: Help -->
+            <div class="artboard" id="help">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h3>Perks & Co Bot</h3>
+                        <p>Online now</p>
+                    </div>
+                </div>
+                <div class="chat-area">
+                    <div class="message user-message">🆘 Help</div>
+                    <div class="message bot-message">
+                        I can help you explore benefits, check your wallet, or answer FAQs.
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showArtboard('welcome')">Back to Main Menu</button>
+                            <button class="action-btn" onclick="showArtboard('contact-support')">Contact Support</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation" id="nav-indicator">
+        Tap buttons to navigate • Current: Welcome
+    </div>
+
+    <script>
+        function validateNumbers(input) {
+            const numbers = input.trim().split(/\s+/);
+            
+            // Check if exactly 6 numbers
+            if (numbers.length !== 6) {
+                return { valid: false, error: "Please enter exactly 6 numbers." };
+            }
+            
+            // Check if all are valid numbers between 1-49
+            for (let num of numbers) {
+                const n = parseInt(num);
+                if (isNaN(n) || n < 1 || n > 49) {
+                    return { valid: false, error: "All numbers must be between 1 and 49." };
+                }
+            }
+            
+            // Check for duplicates
+            const uniqueNumbers = [...new Set(numbers.map(n => parseInt(n)))];
+            if (uniqueNumbers.length !== 6) {
+                return { valid: false, error: "All numbers must be unique." };
+            }
+            
+            return { valid: true, numbers: numbers.join(' ') };
+        }
+
+        function submitNumbers() {
+            const input = document.getElementById('numbers-input').value;
+            const validation = validateNumbers(input);
+            
+            if (!validation.valid) {
+                alert(validation.error);
+                return;
+            }
+            
+            document.getElementById('user-numbers-1').textContent = validation.numbers;
+            document.getElementById('final-numbers-1').textContent = validation.numbers;
+            showArtboard('savings-club-confirmation');
+        }
+
+        function submitNumbers2() {
+            const input = document.getElementById('numbers-input-2').value;
+            const validation = validateNumbers(input);
+            
+            if (!validation.valid) {
+                alert(validation.error);
+                return;
+            }
+            
+            document.getElementById('user-numbers-2').textContent = validation.numbers;
+            document.getElementById('final-numbers-2').textContent = validation.numbers;
+            showArtboard('savings-club-draw-3');
+        }
+
+        function submitNumbers3() {
+            const input = document.getElementById('numbers-input-3').value;
+            const validation = validateNumbers(input);
+            
+            if (!validation.valid) {
+                alert(validation.error);
+                return;
+            }
+            
+            document.getElementById('user-numbers-3').textContent = validation.numbers;
+            document.getElementById('final-numbers-3').textContent = validation.numbers;
+            showArtboard('savings-club-draw-4');
+        }
+
+        function submitNumbers4() {
+            const input = document.getElementById('numbers-input-4').value;
+            const validation = validateNumbers(input);
+            
+            if (!validation.valid) {
+                alert(validation.error);
+                return;
+            }
+            
+            document.getElementById('user-numbers-4').textContent = validation.numbers;
+            document.getElementById('final-numbers-4').textContent = validation.numbers;
+            showArtboard('savings-club-draw-5');
+        }
+
+        function submitNumbers5() {
+            const input = document.getElementById('numbers-input-5').value;
+            const validation = validateNumbers(input);
+            
+            if (!validation.valid) {
+                alert(validation.error);
+                return;
+            }
+            
+            document.getElementById('user-numbers-5').textContent = validation.numbers;
+            document.getElementById('final-numbers-5').textContent = validation.numbers;
+            showArtboard('savings-club-confirmation');
+        }
+
+        function showArtboard(artboardId) {
+            // Hide all artboards
+            const artboards = document.querySelectorAll('.artboard');
+            artboards.forEach(artboard => artboard.classList.remove('active'));
+            
+            // Show selected artboard
+            document.getElementById(artboardId).classList.add('active');
+            
+            // Update navigation indicator
+            const navIndicator = document.getElementById('nav-indicator');
+            const artboardNames = {
+                'welcome': 'Welcome',
+                'benefits': 'Benefits Menu',
+                'wallet': 'Wallet',
+                'help': 'Help',
+                'flexible-pay': 'Flexible Pay',
+                'flexible-learn': 'Flexible Pay Info',
+                'advance-flow': 'Advance Flow',
+                'advance-limit': 'Advance Limit',
+                'advance-error-min': 'Error - Minimum',
+                'advance-error-max': 'Error - Maximum',
+                'advance-fee-disclosure': 'Fee Disclosure',
+                'advance-confirmation': 'Advance Confirmation',
+                'advance-success': 'Advance Success',
+                'advance-cancel': 'Advance Cancel',
+                'store-categories': 'Store Categories',
+                'store-items': 'Store Items',
+                'store-item-detail': 'Store Item Detail',
+                'store-payment-options': 'Store Payment Options',
+                'store-plan-summary-30': 'Store Plan Summary 30',
+                'store-plan-summary-60': 'Store Plan Summary 60',
+                'store-plan-summary-90': 'Store Plan Summary 90',
+                'store-plan-summary-180': 'Store Plan Summary 180',
+                'store-order-summary-30': 'Store Order Summary 30',
+                'store-order-summary-60': 'Store Order Summary 60',
+                'store-order-summary-90': 'Store Order Summary 90',
+                'store-order-summary-180': 'Store Order Summary 180',
+                'store-success': 'Store Success',
+                'store-cancel': 'Store Cancel',
+                'ascend': 'Ascend Options',
+                'ascend-data': 'Ascend Data',
+                'ascend-data-continue': 'Ascend Data Continue',
+                'ascend-data-confirm': 'Ascend Data Confirm',
+                'ascend-data-error': 'Ascend Data Error',
+                'ascend-data-success': 'Ascend Data Success',
+                'ascend-savings': 'Ascend Savings',
+                'ascend-savings-plan': 'Ascend Savings Plan',
+                'ascend-savings-error': 'Ascend Savings Error',
+                'ascend-savings-confirm': 'Ascend Savings Confirm',
+                'ascend-phones': 'Ascend Phones',
+                'ascend-phone-payment': 'Ascend Phone Payment',
+                'ascend-phone-plan': 'Ascend Phone Plan 12M',
+                'ascend-phone-plan-24': 'Ascend Phone Plan 24M',
+                'ascend-phone-confirmation': 'Ascend Phone Confirmation 12M',
+                'ascend-phone-confirmation-24': 'Ascend Phone Confirmation 24M',
+                'ascend-phone-error': 'Ascend Phone Error',
+                'ascend-phone-order': 'Ascend Phone Order',
+                'savings-club': 'Savings Club',
+                'savings-club-amount': 'Savings Club Amount',
+                'savings-club-error-min': 'Savings Club Error',
+                'savings-club-draws': 'Savings Club Draws',
+                'savings-club-draw-2': 'Savings Club Draw 2',
+                'savings-club-draw-3': 'Savings Club Draw 3',
+                'savings-club-draw-4': 'Savings Club Draw 4',
+                'savings-club-draw-5': 'Savings Club Draw 5',
+                'savings-club-numbers-error': 'Numbers Error',
+                'savings-club-confirmation': 'Savings Club Success',
+                'careflex': 'CareFlex',
+                'fixxr': 'Fixxr',
+                'contact-support': 'Contact Support'
+            };
+            navIndicator.textContent = `Tap buttons to navigate • Current: ${artboardNames[artboardId] || artboardId}`;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showArtboard('welcome');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96bf3f600230da14',t:'MTc1NDY1ODU2MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
